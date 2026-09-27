@@ -1,0 +1,38 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.python-version.local
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.pyright/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Secrets and local config
+.env*
+!.env.example
+*.pem
+
+# Private linkage (never public)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Local runtime data
+.data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

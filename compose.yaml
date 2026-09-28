@@ -1,0 +1,84 @@
+# Phase W stack. Run from the repo root (reads .env there):
+#   docker compose up -d --build
+# The Temporal worker runs on the host (it drives the Claude Agent SDK on the
+# host's Claude login); everything else runs here.
+name: coding-agent-control-plane
+
+services:
+  temporal:
+    container_name: temporal
+    image: temporalio/temporal:1.9.1
+    command: ["server", "start-dev", "--ip", "0.0.0.0", "--db-filename", "/var/lib/temporal/temporal.db"]
+    user: "0"  # the image runs as uid 1000, which cannot write to a fresh named volume
+    ports:
+      - "127.0.0.1:7233:7233"
+      - "127.0.0.1:8233:8233"
+    volumes:
+      - temporal-data:/var/lib/temporal
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/jaeger:2.21.0
+    ports:
+      - "127.0.0.1:16686:16686"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:26.7.4
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?set in .env}
+      KC_AGENT_WORKER_SECRET: ${KC_AGENT_WORKER_SECRET:?set in .env}
+      # Pin the issuer so tokens fetched from the host validate inside the network.
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./deploy/keycloak:/opt/keycloak/data/import:ro
+
+  github-mcp:
+    container_name: github-mcp
+    image: ghcr.io/github/github-mcp-server:v1.12.2
+    command: ["http", "--port", "8082"]
+    environment:
+      GITHUB_TOOLSETS: repos,issues,pull_requests
+    ports:
+      - "127.0.0.1:8082:8082"
+
+  sandbox-mcp:
+    container_name: sandbox-mcp
+    build:
+      context: .
+      dockerfile: deploy/mcp-sandbox/Dockerfile
+    environment:
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4318/v1/traces
+    volumes:
+      # Root-equivalent on the Docker host. Phase W accepts it; Phase 2 attacks it.
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "127.0.0.1:8083:8083"
+
+  agentgateway:
+    container_name: agentgateway
+    image: cr.agentgateway.dev/agentgateway:v1.5.0
+    command: ["-f", "/config.yaml"]
+    volumes:
+      - ./deploy/agentgateway/gateway.yaml:/config.yaml:ro
+    secrets:
+      - github_pat
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:15000:15000"
+    restart: unless-stopped  # exits while Keycloak's JWKS is not reachable yet
+    depends_on: [jaeger, keycloak, github-mcp, sandbox-mcp]
+
+secrets:
+  github_pat:
+    environment: GITHUB_PAT
+
+volumes:
+  temporal-data:

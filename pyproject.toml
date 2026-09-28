@@ -1,0 +1,59 @@
+[project]
+name = "coding-agent-control-plane"
+version = "0.1.0"
+description = "Issue-to-PR coding agent on Temporal, behind an MCP gateway, with the governance layer around it."
+authors = [
+    { name = "Stacktician Limited", email = "hello@stacktician.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "claude-agent-sdk>=0.2.160",
+    "docker>=7.2.0",
+    "fastmcp>=4.0.10",
+    "httpx>=0.28.1",
+    "opentelemetry-exporter-otlp-proto-http>=1.45.0",
+    "opentelemetry-sdk>=1.45.0",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "temporalio[opentelemetry]>=1.33.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.9",
+]
+lab = [
+    "anthropic>=1.8.0",
+    "python-dotenv>=1.2.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "S", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"labs/*" = ["T201"]
+
+[tool.mypy]
+strict = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["docker", "docker.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]  # tests import scripts/ as a package

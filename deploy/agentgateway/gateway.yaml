@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://agentgateway.dev/schema/config
+# Phase W: deliberately naive. One shared Keycloak token admits any caller to
+# every tool on both MCP servers; GitHub is reached with one PAT.
+config:
+  adminAddr: 0.0.0.0:15000
+  tracing:
+    otlpEndpoint: http://jaeger:4317
+    otlpProtocol: grpc
+    randomSampling: true
+
+binds:
+- port: 3000
+  listeners:
+  - routes:
+    - policies:
+        cors:
+          allowOrigins: ["*"]
+          allowHeaders: ["*"]
+          exposeHeaders: ["Mcp-Session-Id"]
+        jwtAuth:
+          mode: strict
+          issuer: http://localhost:8080/realms/control-plane
+          audiences: [agentgateway]
+          jwks:
+            url: http://keycloak:8080/realms/control-plane/protocol/openid-connect/certs
+      backends:
+      - mcp:
+          prefixMode: always
+          targets:
+          - name: github
+            mcp:
+              host: http://github-mcp:8082/
+            policies:
+              backendAuth:
+                key:
+                  file: /run/secrets/github_pat
+          - name: sandbox
+            mcp:
+              host: http://sandbox-mcp:8083/mcp

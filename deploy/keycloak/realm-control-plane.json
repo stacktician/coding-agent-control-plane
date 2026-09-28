@@ -1,0 +1,31 @@
+{
+  "realm": "control-plane",
+  "enabled": true,
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "agent-worker",
+      "name": "Coding-agent worker (Phase W: one shared identity)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${KC_AGENT_WORKER_SECRET}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "audience-agentgateway",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "agentgateway",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

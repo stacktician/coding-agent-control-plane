@@ -1,0 +1,8 @@
+# Allowlist: only what deploy/mcp-sandbox/Dockerfile copies enters the build context.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!LICENSE
+!src/
+**/__pycache__/

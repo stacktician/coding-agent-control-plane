@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Re-render the C4 views whenever the model is part of the commit, so the model and its
+# pictures always land together. Enable once per clone: git config core.hooksPath .githooks
+set -euo pipefail
+
+if git diff --cached --name-only | grep -qx 'docs/architecture/workspace.dsl'; then
+    bash scripts/render_architecture.sh
+    git add -A -- 'docs/architecture/*.svg'
+fi

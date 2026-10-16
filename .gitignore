@@ -24,12 +24,16 @@ npm-debug.log*
 !.env.example
 *.pem
 
-# Private linkage (never public)
+# Local working files (personal notes and Claude Code local settings)
 CLAUDE.local.md
 .claude/settings.local.json
 
 # Local runtime data
 .data/
+
+# Structurizr viewer state (docs/architecture/README.md)
+docs/architecture/workspace.json
+docs/architecture/.structurizr/
 
 # OS / editor
 .DS_Store

@@ -1,0 +1,33 @@
+name: architecture
+
+# Fails when the committed SVGs no longer match docs/architecture/workspace.dsl.
+on:
+  push:
+    paths:
+      - "docs/architecture/**"
+      - "scripts/render_architecture.sh"
+      - ".github/workflows/architecture.yml"
+  pull_request:
+    paths:
+      - "docs/architecture/**"
+      - "scripts/render_architecture.sh"
+      - ".github/workflows/architecture.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagrams-current:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Re-render every view
+        run: bash scripts/render_architecture.sh
+      - name: Fail if the committed SVGs are stale
+        run: |
+          if [ -n "$(git status --porcelain -- docs/architecture)" ]; then
+            git status --short -- docs/architecture
+            echo "::error::Diagrams are stale. Run scripts/render_architecture.sh and commit the SVGs."
+            exit 1
+          fi

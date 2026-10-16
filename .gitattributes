@@ -1,0 +1,6 @@
+# Shell scripts and hooks must keep LF endings to run on Linux CI and in Git Bash.
+*.sh text eol=lf
+.githooks/* text eol=lf
+
+# Generated from docs/architecture/workspace.dsl by scripts/render_architecture.sh.
+docs/architecture/*.svg text eol=lf linguist-generated=true

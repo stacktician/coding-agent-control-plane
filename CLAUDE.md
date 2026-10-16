@@ -42,7 +42,8 @@ through an MCP gateway under IdP-issued identity, plus the governance layer arou
   trace delivery. No reports, automatic repairs or container restarts.
 - `deploy/`: Docker Compose and service configs.
 - `labs/`: standalone learning scripts, not imported by the application.
-- `docs/`: architecture and system map.
+- `docs/architecture/`: the C4 model (`workspace.dsl`) and the SVGs generated from it. Edit
+  only the DSL; `scripts/render_architecture.sh` and the pre-commit hook re-render the SVGs.
 - `tests/`: mirrors `src/`.
 
 ## Before you call a change done

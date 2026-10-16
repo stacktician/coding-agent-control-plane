@@ -2,6 +2,7 @@ name: architecture
 
 # Fails when the committed SVGs no longer match docs/architecture/workspace.dsl.
 on:
+  workflow_dispatch:
   push:
     paths:
       - "docs/architecture/**"

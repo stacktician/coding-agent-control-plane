@@ -34,7 +34,7 @@ before any part is hardened. Its weaknesses are deliberate and documented
 |---|---|---|---|---|
 | One MCP gateway; the agent's built-in tools are off | The agent acting on the host or around the controls | ASI02, ASI05 | `agent/run.py`, agentgateway | In place |
 | A JWT on every tool call | Unauthenticated tool use | ASI03 | agentgateway, Keycloak | In place; one identity shared by every run |
-| No credentials in the agent or the sandbox | Token theft through prompt injection | ASI01, ASI03 | Gateway credential injection; publishing through the Git Data API | In place; GitHub write tools are still exposed to the agent ([ADR 0003](docs/adr/0003-the-agent-holds-no-credentials.md)) |
+| No credentials in the agent or the sandbox | Token theft through prompt injection | ASI01, ASI03 | Gateway credential injection; publishing through the Git Data API | In place; the agent's GitHub route is read-only (server flag plus per-tool allow and deny rules); a gateway rule follows in Harden ([ADR 0003](docs/adr/0003-the-agent-holds-no-credentials.md)) |
 | One sandbox container per issue | Untrusted repository code running on the host | ASI04, ASI05 | `sandbox/containers.py` | In place; `sandbox-mcp` holds the Docker socket, and paths are not confined |
 | Turn limit, timeouts and heartbeats on the agent run | A runaway or stuck agent | ASI08, ASI10 | `max_turns`, Temporal activity timeouts | In place |
 | A human approval gate | Unreviewed agent changes merging | ASI09, ASI10 | `IssueWorkflow` review signal | In place; who applied the label is not checked |
@@ -107,7 +107,7 @@ Then label an issue on the fork `agent-ok`. The worker refuses to start if
 |---|---|
 | **Baseline** (this) | The whole path works end to end; every weakness is known and written down. |
 | **Quality gate** | Coverage above 90 %, a planted-fault drill, three issues run concurrently with one approval, one rejection and one worker kill, and a written map of every trust boundary. |
-| **Production MCP** | Typed sandbox tools with limits and structured errors; a third MCP server (Sentry); a token per MCP server; MCP conformance for the 2026-07-28 revision; the GitHub route read-only for the agent (`GITHUB_READ_ONLY=1`, explicit `GITHUB_TOOLS`, per-tool SDK permission policy). |
+| **Production MCP** | Typed sandbox tools with limits and structured errors; a third MCP server (Sentry); a token per MCP server; MCP conformance for the 2026-07-28 revision; an explicit `GITHUB_TOOLS` allow-list on the read-only GitHub route. |
 | **Agent policy** | One organisation policy compiled to every coding agent's native format (Claude Code managed settings, Copilot, Cursor, Codex, Antigravity), with a paired measurement plan: throughput next to change-failure rate and review depth. |
 | **Red team** | Each baseline weakness reproduced as a working attack with a measured success rate, including the 2026 incident classes: poisoned issues and READMEs, tool poisoning, token passthrough, confused deputy, an in-process extension that auto-approves, repo-controlled git config, a planted STDIO command, exfiltration by repository creation. |
 | **Harden** | Policy per tool at the gateway (`mcpAuthorization` on tool name and token claims); identity per run with short-lived, repository-scoped tokens instead of one shared client and one PAT; audience-bound tokens and token exchange through the gateway; approval verified by actor; an append-only audit keyed to the verified subject; a sandbox without the Docker socket, non-root, dropped capabilities, no network except the gateway. |

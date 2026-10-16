@@ -29,9 +29,9 @@ assumed reachable by whoever wrote the issue.
 - A compromised agent run cannot read or leak the GitHub token, and nothing it does is
   published without passing through the control plane and a human review.
 - Re-publishing replaces the branch, so a retried publish is idempotent.
-- Gap in the baseline: the gateway exposes the full `repos`, `issues` and `pull_requests`
-  toolsets, write tools included, and the agent is only *told* not to use them. The fix is
-  queued in two layers: run `github-mcp` with `GITHUB_READ_ONLY=1`, which drops write tools
-  even when a toolset includes them, plus an explicit `GITHUB_TOOLS` allow-list; then a
-  per-tool `mcpAuthorization` rule at the gateway, so the restriction no longer depends on the
-  server's own flags.
+- The agent's GitHub route is read-only in two layers: `github-mcp` runs with
+  `GITHUB_READ_ONLY=1`, which drops write tools even when a toolset includes them, and the
+  agent's own allow rules admit only `github_get_*`, `github_list_*` and `github_search_*`,
+  with every write prefix in a deny rule that holds in any permission mode. A third layer,
+  a per-tool `mcpAuthorization` rule at the gateway, follows in the harden milestone so the
+  restriction no longer depends on the server's flags or the agent's configuration.

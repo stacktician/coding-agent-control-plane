@@ -35,7 +35,24 @@ def test_only_the_gateway_and_task_are_reachable(settings: Settings) -> None:
     assert options.env["ENABLE_CLAUDEAI_MCP_SERVERS"] == "false"
     assert options.setting_sources == []
     assert options.permission_mode == "dontAsk"
-    assert options.allowed_tools == [f"mcp__{GATEWAY}", "Task"]
+    assert options.allowed_tools == [
+        f"mcp__{GATEWAY}__sandbox_*",
+        f"mcp__{GATEWAY}__github_get_*",
+        f"mcp__{GATEWAY}__github_list_*",
+        f"mcp__{GATEWAY}__github_search_*",
+        "Task",
+    ]
+
+
+def test_github_writes_are_denied_not_merely_unlisted(settings: Settings) -> None:
+    options = build_options(settings, 1, "jwt", "tp", Path())
+
+    denied = options.disallowed_tools
+    for write in ("create_pull_request", "push_files", "merge_pull_request", "add_issue_comment"):
+        prefix = write.split("_")[0] + "_"
+        assert f"mcp__{GATEWAY}__github_{prefix}*" in denied, write
+    assert not any(rule.startswith(f"mcp__{GATEWAY}__sandbox_") for rule in denied)
+    assert f"mcp__{GATEWAY}" not in options.allowed_tools  # no bare server-wide allow
     assert options.include_partial_messages is True  # needed for true per-turn token counts
 
 

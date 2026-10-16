@@ -46,6 +46,9 @@ services:
     command: ["http", "--port", "8082"]
     environment:
       GITHUB_TOOLSETS: repos,issues,pull_requests
+      # The agent only reads GitHub; the control plane publishes branches and PRs itself
+      # through its own REST client (ADR 0003). Write tools are not offered at all.
+      GITHUB_READ_ONLY: "1"
     ports:
       - "127.0.0.1:8082:8082"
 

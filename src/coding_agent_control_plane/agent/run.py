@@ -21,6 +21,28 @@ from coding_agent_control_plane.workflows.models import AgentRequest, AgentResul
 
 GATEWAY = "gateway"
 SANDBOX_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "list_files"]
+# The agent may only read GitHub: the control plane publishes its work (ADR 0003). The
+# server runs read-only as well (GITHUB_READ_ONLY in compose.yaml); this is the second lock.
+GITHUB_READ_PREFIXES = ["get_", "list_", "search_"]
+GITHUB_WRITE_PREFIXES = [
+    "create_",
+    "update_",
+    "add_",
+    "push_",
+    "merge_",
+    "delete_",
+    "fork_",
+    "dismiss_",
+    "request_",
+    "assign_",
+    "submit_",
+    "remove_",
+    "set_",
+    "mark_",
+    "run_",
+    "cancel_",
+    "rerun_",
+]
 HEARTBEAT_EVERY_S = 20
 
 SYSTEM_PROMPT = """\
@@ -98,7 +120,16 @@ def build_options(
         env={"ENABLE_CLAUDEAI_MCP_SERVERS": "false"},
         # No user or project settings, hooks or CLAUDE.md from this machine.
         setting_sources=[],
-        allowed_tools=[f"mcp__{GATEWAY}", "Task"],
+        # Per-tool allow rules: every sandbox tool, GitHub reads only, and Task. With
+        # dontAsk, any other tool call is denied rather than prompted.
+        allowed_tools=[
+            f"mcp__{GATEWAY}__sandbox_*",
+            *[f"mcp__{GATEWAY}__github_{prefix}*" for prefix in GITHUB_READ_PREFIXES],
+            "Task",
+        ],
+        # Deny rules hold in every permission mode, so GitHub writes stay blocked even if
+        # the mode or the allow list changes later.
+        disallowed_tools=[f"mcp__{GATEWAY}__github_{prefix}*" for prefix in GITHUB_WRITE_PREFIXES],
         permission_mode="dontAsk",  # anything not allowed above is denied, never prompted
         agents={
             "test-writer": AgentDefinition(

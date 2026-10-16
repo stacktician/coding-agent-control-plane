@@ -63,3 +63,23 @@ so existing saved traces remain recognizable. These labels are not Python module
 
 A passing connection check does not prove GitHub write permissions, sandbox execution,
 issue-to-PR behavior, or workflow recovery. Those belong to later functional testing.
+
+## Resetting the training fork
+
+`scripts/reset_training_fork.py` undoes the agent's work on the fork, or prepares a fresh
+one, so the same seed issues can be run again. It reads `GITHUB_FORK` and `GITHUB_PAT` from
+`.env`, never prints the token, and changes nothing without `--apply`.
+
+```bash
+uv run python -B scripts/reset_training_fork.py --reset            # dry run: shows the plan
+uv run python -B scripts/reset_training_fork.py --reset --apply    # undo the agent's work in place
+uv run python -B scripts/reset_training_fork.py --recreate --apply # prepare a freshly made fork
+```
+
+`--reset` moves the default branch back to the newest commit that is not an agent commit
+(messages starting with `Agent change for #` or `[agent]`), deletes `agent/issue-*` branches,
+closes open agent pull requests, reopens the seed issues and strips the agent labels.
+`--recreate` enables issues, creates the four labels, renames the default branch and
+recreates the seed issues from the upstream repository in order (default `289 299 282 301`,
+so they become #1–#4). Enabling issues and renaming the branch need the token's
+Administration permission; without it the script prints the manual step instead.

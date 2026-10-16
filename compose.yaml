@@ -18,7 +18,7 @@ services:
 
   jaeger:
     container_name: jaeger
-    image: jaegertracing/jaeger:2.21.0
+    image: jaegertracing/jaeger:2.22.0
     ports:
       - "127.0.0.1:16686:16686"
       - "127.0.0.1:4317:4317"

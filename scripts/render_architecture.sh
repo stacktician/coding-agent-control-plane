@@ -21,9 +21,13 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 work_dir="$(mktemp -d)"
-# On Linux the export's files are root-owned; a failed cleanup must not fail the run.
+# mktemp creates a 0700 directory; the container runs as its own user and must be able to
+# read the model and write the export (on Linux CI, Java otherwise reports "does not exist").
+chmod 777 "$work_dir"
+# Files the container writes may be owned by another user; a failed cleanup must not fail the run.
 trap 'rm -rf "$work_dir" 2>/dev/null || true' EXIT
 cp "$arch_dir/workspace.dsl" "$work_dir/"
+chmod 644 "$work_dir/workspace.dsl"
 
 # Docker on Windows needs a Windows path for the bind mount, and Git Bash must not
 # rewrite the container-side paths.

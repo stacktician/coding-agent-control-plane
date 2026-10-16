@@ -27,5 +27,5 @@ for days, and it must be recorded.
 
 - The human gate is explicit, and the decision is recorded in the workflow history.
 - A decision takes effect within one poll interval (60 seconds).
-- Anyone who can label pull requests on the fork can approve; Phase W does not check who
+- Anyone who can label pull requests on the fork can approve; the baseline does not check who
   applied the label.

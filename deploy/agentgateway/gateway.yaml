@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://agentgateway.dev/schema/config
-# Phase W: deliberately naive. One shared Keycloak token admits any caller to
+# Baseline: deliberately naive. One shared Keycloak token admits any caller to
 # every tool on both MCP servers; GitHub is reached with one PAT.
 config:
   adminAddr: 0.0.0.0:15000

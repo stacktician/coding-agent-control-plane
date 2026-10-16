@@ -1,8 +1,8 @@
 """Sandbox MCP server: file and shell tools inside an issue's sandbox container.
 
-Deliberately naive for Phase W: any caller can address any issue's container,
+Deliberately naive in the baseline: any caller can address any issue's container,
 paths are not confined to the workspace, and commands run as root in the
-container. Phase 2 attacks these; later phases fix them.
+container. The red-team milestone attacks these; the harden milestone fixes them.
 """
 
 import asyncio

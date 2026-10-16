@@ -21,10 +21,11 @@ These hold in every phase. Changing one needs a new ADR in `docs/adr/`.
   the worker refuses to start when it is present (ADR 0006).
 
 ## Milestones
-`Phase W` is the baseline: the whole system running end to end before any part is hardened.
-Comments that defer a known weakness name the phase that closes it: Phase 2 attacks the
-baseline, Phase 3 hardens identity and policy, Phase 4 makes activities idempotent, Phase 5
-adds evals and token budgets. The README's roadmap is the public version of this list.
+Milestones are named, never numbered, in this repo: Baseline (the whole system running end to
+end before any part is hardened), Quality gate, Production MCP, Agent policy, Red team,
+Harden, Durable, Evals, Demo. A comment that defers a known weakness names the milestone that
+closes it ("the red-team milestone attacks this; harden closes it"). The README's roadmap is
+the public definition of each.
 
 ## Stack
 - Python 3.12+, managed with `uv` (lockfile committed; `uv sync`, `uv run`, `uv build`).

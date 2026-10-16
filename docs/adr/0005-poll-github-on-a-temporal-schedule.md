@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-Phase W runs on a workstation behind NAT. GitHub webhooks need a publicly reachable endpoint:
+The baseline runs on a workstation behind NAT. GitHub webhooks need a publicly reachable endpoint:
 an exposed port or a tunnel, plus signature verification and replay handling.
 
 ## Decision

@@ -30,7 +30,7 @@ retried step must not silently repeat work that already happened.
 - A crash or redeploy resumes each issue where it stopped.
 - Retries and timeouts are declarative, and the workflow history is an audit trail of every
   step and decision.
-- Temporal is one more service to run. Phase W uses the single-node dev server with SQLite,
+- Temporal is one more service to run. The baseline uses the single-node dev server with SQLite,
   which is not highly available.
-- Activities must be idempotent. In Phase W they are not all: a retried claim or outcome can
-  post a duplicate comment (Phase 4 hardens this).
+- Activities must be idempotent. In the baseline they are not all: a retried claim or outcome can
+  post a duplicate comment (the durable milestone fixes this).

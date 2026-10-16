@@ -1,6 +1,6 @@
 # 0007. Ship a deliberately naive security baseline first, then attack it
 
-Status: Accepted (Phase W)
+Status: Accepted (baseline)
 
 ## Context
 
@@ -10,7 +10,7 @@ written down.
 
 ## Decision
 
-Phase W, "see it whole", is the project's first milestone: the whole system running end to
+The baseline is the project's first milestone: the whole system running end to
 end before any part is hardened. It is functional but deliberately naive, and says so in the
 code:
 
@@ -22,12 +22,12 @@ code:
 - `sandbox-mcp` mounts the Docker socket, which is root-equivalent on the host.
 - A retried claim or outcome activity can post a duplicate comment.
 
-Phase 2 attacks these weaknesses; later phases fix them, each fix measured against the attack
-that motivated it.
+The red-team milestone attacks these weaknesses; the harden and durable milestones fix them,
+each fix measured against the attack that motivated it.
 
 ## Consequences
 
 - Every hardening step is justified by a demonstrated, reproducible attack rather than a
   checklist.
-- Phase W must not process untrusted repositories or issues.
+- The baseline must not process untrusted repositories or issues.
 - Every published port is bound to `127.0.0.1`, so nothing is reachable from the network.

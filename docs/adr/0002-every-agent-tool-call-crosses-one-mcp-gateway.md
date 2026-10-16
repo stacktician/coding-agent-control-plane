@@ -40,5 +40,5 @@ The agent gets exactly one tool source: agentgateway, as a single MCP server.
   2026-07-28 revision (stateless, no sessions) reaches the servers behind it only when they
   are ready for it.
 - The gateway is a single point of failure and adds a network hop to every tool call.
-- In Phase W its policy is deliberately naive: one shared token admits any caller to every
+- In the baseline its policy is deliberately naive: one shared token admits any caller to every
   tool on both servers ([ADR 0007](0007-a-deliberately-naive-baseline-first.md)).

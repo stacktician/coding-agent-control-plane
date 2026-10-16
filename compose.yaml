@@ -1,4 +1,4 @@
-# Phase W stack. Run from the repo root (reads .env there):
+# Baseline stack. Run from the repo root (reads .env there):
 #   docker compose up -d --build
 # The Temporal worker runs on the host (it drives the Claude Agent SDK on the
 # host's Claude login); everything else runs here.
@@ -57,7 +57,7 @@ services:
     environment:
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4318/v1/traces
     volumes:
-      # Root-equivalent on the Docker host. Phase W accepts it; Phase 2 attacks it.
+      # Root-equivalent on the Docker host. The baseline accepts it; the red-team milestone attacks it.
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "127.0.0.1:8083:8083"

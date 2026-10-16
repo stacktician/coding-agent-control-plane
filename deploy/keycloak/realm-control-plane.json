@@ -5,7 +5,7 @@
   "clients": [
     {
       "clientId": "agent-worker",
-      "name": "Coding-agent worker (Phase W: one shared identity)",
+      "name": "Coding-agent worker (baseline: one shared identity)",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,

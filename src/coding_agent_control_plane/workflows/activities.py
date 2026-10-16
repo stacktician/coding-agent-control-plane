@@ -1,6 +1,6 @@
 """IssueWorkflow's side effects: GitHub writes, sandbox lifecycle, tests, PR.
 
-Deliberately naive for Phase W (Phase 4 hardens idempotency): a retried
+Deliberately naive in the baseline (the durable milestone adds idempotency): a retried
 claim or outcome activity can post a duplicate comment.
 """
 

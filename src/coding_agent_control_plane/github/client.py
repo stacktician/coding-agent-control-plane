@@ -1,6 +1,6 @@
 """GitHub REST calls the control plane makes itself, outside the agent.
 
-Phase W: one fine-grained PAT scoped to the fork. The agent never holds this
+Baseline: one fine-grained PAT scoped to the fork. The agent never holds this
 client; it reaches GitHub only through the MCP gateway.
 """
 

@@ -1,4 +1,4 @@
-"""Workload identity. Phase W: one shared Keycloak client-credentials token."""
+"""Workload identity. Baseline: one shared Keycloak client-credentials token."""
 
 import httpx
 

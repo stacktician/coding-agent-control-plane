@@ -25,12 +25,12 @@ project answers them in the architecture, not in the prompt.
 
 Each control is mapped to the risks it addresses in the
 [OWASP Top 10 for Agentic Applications (2026)](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/).
-This is Phase W, the project's first milestone: the whole system running end to end before
-any part is hardened. Its weaknesses are deliberate and documented
+This is the **baseline**, the project's first milestone: the whole system running end to end
+before any part is hardened. Its weaknesses are deliberate and documented
 ([ADR 0007](docs/adr/0007-a-deliberately-naive-baseline-first.md)); the
-[roadmap](#roadmap) says which phase closes each one.
+[roadmap](#roadmap) says which milestone closes each one.
 
-| Control | Threat it addresses | OWASP | Enforced in | Phase W status |
+| Control | Threat it addresses | OWASP | Enforced in | Baseline status |
 |---|---|---|---|---|
 | One MCP gateway; the agent's built-in tools are off | The agent acting on the host or around the controls | ASI02, ASI05 | `agent/run.py`, agentgateway | In place |
 | A JWT on every tool call | Unauthenticated tool use | ASI03 | agentgateway, Keycloak | In place; one identity shared by every run |
@@ -94,20 +94,26 @@ Then label an issue on the fork `agent-ok`. The worker refuses to start if
   revisions, so the stateless 2026-07-28 revision reaches each server only when it is ready.
 - **OpenTelemetry:** the agent run's trace ID travels as a W3C `traceparent` header through
   the gateway, so the gateway's spans in Jaeger share the run's Langfuse trace ID. Agent spans
-  use Langfuse's attributes today; the OpenTelemetry GenAI semantic conventions are still in
-  development and will be adopted once they stabilise.
+  carry Langfuse's attributes today; the OpenTelemetry GenAI names (`invoke_agent`,
+  `execute_tool`, `mcp.*`) come next, adopted as they stand, since the conventions are still
+  in development with no stabilisation date, so renames are expected and handled in one
+  mapping module.
 - **[C4 model](https://c4model.com):** the architecture is kept as code and rendered in CI
   ([ADR 0008](docs/adr/0008-architecture-as-code.md)).
 
 ## Roadmap
 
-| Phase | Theme | What changes |
-|---|---|---|
-| W | Baseline (this) | The whole path works end to end; every weakness is known and written down. |
-| 2 | Red team | Each Phase W weakness reproduced as a working attack against the running stack. |
-| 3 | Harden | Read-only GitHub for the agent (`GITHUB_READ_ONLY=1`, explicit `GITHUB_TOOLS`); policy per tool at the gateway (`mcpAuthorization` on tool name and token claims); identity per run with short-lived, repository-scoped tokens instead of one shared client and one PAT; a sandbox without the Docker socket, non-root, dropped capabilities, no network except the gateway. |
-| 4 | Durable | Idempotent activities, so a retry never repeats a side effect; worker restarts and kills tested, not assumed. |
-| 5 | Evals and budgets | An eval harness as a CI gate, token budgets per run, OpenTelemetry GenAI attributes on agent spans once the conventions stabilise. |
+| Milestone | What changes |
+|---|---|
+| **Baseline** (this) | The whole path works end to end; every weakness is known and written down. |
+| **Quality gate** | Coverage above 90 %, a planted-fault drill, three issues run concurrently with one approval, one rejection and one worker kill, and a written map of every trust boundary. |
+| **Production MCP** | Typed sandbox tools with limits and structured errors; a third MCP server (Sentry); a token per MCP server; MCP conformance for the 2026-07-28 revision; the GitHub route read-only for the agent (`GITHUB_READ_ONLY=1`, explicit `GITHUB_TOOLS`, per-tool SDK permission policy). |
+| **Agent policy** | One organisation policy compiled to every coding agent's native format (Claude Code managed settings, Copilot, Cursor, Codex, Antigravity), with a paired measurement plan: throughput next to change-failure rate and review depth. |
+| **Red team** | Each baseline weakness reproduced as a working attack with a measured success rate, including the 2026 incident classes: poisoned issues and READMEs, tool poisoning, token passthrough, confused deputy, an in-process extension that auto-approves, repo-controlled git config, a planted STDIO command, exfiltration by repository creation. |
+| **Harden** | Policy per tool at the gateway (`mcpAuthorization` on tool name and token claims); identity per run with short-lived, repository-scoped tokens instead of one shared client and one PAT; audience-bound tokens and token exchange through the gateway; approval verified by actor; an append-only audit keyed to the verified subject; a sandbox without the Docker socket, non-root, dropped capabilities, no network except the gateway. |
+| **Durable** | Idempotent activities, so a retry never repeats a side effect; review waits that last days; worker restarts and kills tested at three points, not assumed. |
+| **Evals** | An eval harness as a CI gate on pinned SWE-bench Pro V2 tasks under the locked protocol and Terminal-Bench 4.0, with trajectories and per-task cost; resolve rate and cost with and without the governance layer; token budgets per run; OpenTelemetry GenAI names on agent spans. |
+| **Demo** | A 15-minute walk-through: an issue becomes a PR, a poisoned issue is blocked with its audit trail, the worker is killed and resumes, the eval gate stops a regression. |
 
 ## Documentation
 

@@ -17,7 +17,7 @@ workspace "Coding agent control plane" "Issue-to-PR coding agent driven by Tempo
                 agentActivity = component "Agent activity" "run_agent: fetches a gateway token, launches the agent with only the gateway MCP server and the Task tool, heartbeats every 20 s." "agent/run.py"
                 agentTrace = component "Agent trace recorder" "Turns the SDK message stream into Langfuse spans: a generation per model turn, a span per tool call, subagents nested." "agent/tracing.py"
                 githubClient = component "GitHub client" "REST with the fork-scoped PAT. Publishes branches through the Git Data API, so no credential enters the sandbox." "github/client.py"
-                identity = component "Identity" "Keycloak client-credentials token. Phase W: one shared identity." "identity.py"
+                identity = component "Identity" "Keycloak client-credentials token. Baseline: one shared identity." "identity.py"
                 sandboxDriver = component "Sandbox driver" "Creates, execs into, reads, writes and removes sandbox containers through the Docker API. Shared with sandbox-mcp." "sandbox/containers.py"
                 telemetry = component "Telemetry" "Replay-safe Jaeger provider for service spans; separate Langfuse provider for agent spans." "telemetry.py"
             }
@@ -76,7 +76,7 @@ workspace "Coding agent control plane" "Issue-to-PR coding agent driven by Tempo
         telemetry -> jaeger "Service spans"
         telemetry -> langfuse "Agent spans"
 
-        deploymentEnvironment "Phase W" {
+        deploymentEnvironment "Baseline" {
             deploymentNode "Developer workstation" "" "Windows 11" {
                 deploymentNode "Host processes" "Run on the host so the agent uses the Claude login." "uv, Python 3.12" {
                     containerInstance worker
@@ -157,7 +157,7 @@ workspace "Coding agent control plane" "Issue-to-PR coding agent driven by Tempo
             }
         }
 
-        deployment cacp "Phase W" "Deployment" "Where each part runs in Phase W." {
+        deployment cacp "Baseline" "Deployment" "Where each part runs in the baseline." {
             include *
             autoLayout tb
         }

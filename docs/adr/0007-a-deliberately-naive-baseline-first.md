@@ -10,7 +10,9 @@ written down.
 
 ## Decision
 
-Phase W is end to end functional but deliberately naive, and says so in the code:
+Phase W, "see it whole", is the project's first milestone: the whole system running end to
+end before any part is hardened. It is functional but deliberately naive, and says so in the
+code:
 
 - One shared Keycloak client identity for every run.
 - One gateway token admits any caller to every tool on both MCP servers.

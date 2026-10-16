@@ -5,6 +5,9 @@ description = "Issue-to-PR coding agent on Temporal, behind an MCP gateway, with
 authors = [
     { name = "Stacktician Limited", email = "hello@stacktician.com" }
 ]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
     "claude-agent-sdk>=0.2.160",
@@ -17,6 +20,11 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "temporalio[opentelemetry]>=1.33.0",
 ]
+
+[project.urls]
+Homepage = "https://stacktician.com"
+Repository = "https://github.com/stacktician/coding-agent-control-plane"
+Architecture = "https://github.com/stacktician/coding-agent-control-plane/tree/main/docs/architecture"
 
 [build-system]
 requires = ["uv_build>=0.12.10,<0.13.0"]

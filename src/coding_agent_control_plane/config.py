@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", frozen=True)
 
     github_fork: str
-    github_base_branch: str = "master"
+    github_base_branch: str = "main"
     github_pat: SecretStr
 
     langfuse_otlp_endpoint: str = "https://cloud.langfuse.com/api/public/otel/v1/traces"
@@ -30,8 +30,9 @@ class Settings(BaseSettings):
     agent_model: str = "claude-sonnet-5"
     agent_max_turns: int = 80
 
+    # Generic defaults; the target repository's own commands come from .env.
     target_install_command: str = 'pip install -e . "pytest>=8"'
-    target_test_command: str = "python -m pytest -q --doctest-modules boltons tests"
+    target_test_command: str = "python -m pytest -q"
 
     @property
     def keycloak_token_endpoint(self) -> str:

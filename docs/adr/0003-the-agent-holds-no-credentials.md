@@ -30,5 +30,8 @@ assumed reachable by whoever wrote the issue.
   published without passing through the control plane and a human review.
 - Re-publishing replaces the branch, so a retried publish is idempotent.
 - Gap in Phase W: the gateway exposes the full `repos`, `issues` and `pull_requests`
-  toolsets, write tools included, and the agent is only *told* not to use them. Restricting
-  the `github_*` route to read-only tools is the policy to add.
+  toolsets, write tools included, and the agent is only *told* not to use them. The fix is
+  queued in two layers: run `github-mcp` with `GITHUB_READ_ONLY=1`, which drops write tools
+  even when a toolset includes them, plus an explicit `GITHUB_TOOLS` allow-list; then a
+  per-tool `mcpAuthorization` rule at the gateway, so the restriction no longer depends on the
+  server's own flags.

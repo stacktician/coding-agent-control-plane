@@ -40,6 +40,7 @@ def test_only_the_gateway_and_task_are_reachable(settings: Settings) -> None:
         f"mcp__{GATEWAY}__github_get_*",
         f"mcp__{GATEWAY}__github_list_*",
         f"mcp__{GATEWAY}__github_search_*",
+        f"mcp__{GATEWAY}__github_*_read",
         "Task",
     ]
 

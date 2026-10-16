@@ -23,7 +23,7 @@ GATEWAY = "gateway"
 SANDBOX_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "list_files"]
 # The agent may only read GitHub: the control plane publishes its work (ADR 0003). The
 # server runs read-only as well (GITHUB_READ_ONLY in compose.yaml); this is the second lock.
-GITHUB_READ_PREFIXES = ["get_", "list_", "search_"]
+GITHUB_READ_PATTERNS = ["get_*", "list_*", "search_*", "*_read"]  # issue_read, pull_request_read
 GITHUB_WRITE_PREFIXES = [
     "create_",
     "update_",
@@ -124,7 +124,7 @@ def build_options(
         # dontAsk, any other tool call is denied rather than prompted.
         allowed_tools=[
             f"mcp__{GATEWAY}__sandbox_*",
-            *[f"mcp__{GATEWAY}__github_{prefix}*" for prefix in GITHUB_READ_PREFIXES],
+            *[f"mcp__{GATEWAY}__github_{pattern}" for pattern in GITHUB_READ_PATTERNS],
             "Task",
         ],
         # Deny rules hold in every permission mode, so GitHub writes stay blocked even if

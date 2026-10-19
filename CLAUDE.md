@@ -67,6 +67,10 @@ the public definition of each.
 - `scripts/render_architecture.sh`: renders the C4 views (Docker only).
 - `deploy/`: Docker Compose and service configs. Compose mounts
   `deploy/agentgateway/gateway.yaml`.
+- `.github/workflows/`: `ci.yml` (the gate, every push and PR), `architecture.yml` (diagram
+  drift), `images.yml` (sandbox image build and vulnerability scan, also weekly),
+  `scorecard.yml` (OpenSSF Scorecard, weekly). A check that must always report runs a cheap
+  scope job first and skips the expensive job when nothing relevant changed.
 - `docs/architecture/`: the C4 model (`workspace.dsl`) and the SVGs generated from it. Edit
   only the DSL; the render script and the pre-commit hook re-render the SVGs.
 - `docs/adr/`: architecture decision records. A significant design decision gets an ADR
@@ -83,8 +87,10 @@ the public definition of each.
   rewritten in the project's own voice (README, docs, ADR) or left out.
 - Tracked files never name private files: `.dockerignore` is an allowlist, `.gitignore`
   describes categories, and private working files are ignored machine-wide.
-- Pinned versions everywhere: Compose images by tag, render images by digest, GitHub
-  actions by commit SHA. Dependabot proposes the updates.
+- Pinned versions everywhere: container images (Compose and the sandbox Dockerfile) by tag
+  and digest, render images by digest, GitHub actions by commit SHA. Dependabot proposes the
+  updates; Trivy scans the sandbox image on every change and weekly, and fails the build on a
+  fixed critical or high finding.
 - After any history rewrite and before the next push: `git for-each-ref` shows only
   `refs/heads/main`, and `git log --all --name-only` is free of removed files.
 

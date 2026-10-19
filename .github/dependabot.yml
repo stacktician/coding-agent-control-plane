@@ -1,20 +1,40 @@
-# Keeps every pin current: Python packages (uv.lock), Compose images, the sandbox-mcp base
-# image and the GitHub actions. CI must be green before an update is merged.
+# Keeps every pin current: Python packages (uv.lock), Compose images, the sandbox base images
+# and the GitHub actions. Minor and patch updates arrive grouped, one PR per ecosystem; majors
+# arrive one PR each so they get read. CI must be green before an update is merged.
 version: 2
 updates:
   - package-ecosystem: uv
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      python-minor-and-patch:
+        update-types: ["minor", "patch"]
   - package-ecosystem: docker-compose
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      compose-images:
+        update-types: ["minor", "patch"]
   - package-ecosystem: docker
     directory: /deploy/mcp-sandbox
     schedule:
       interval: weekly
+    groups:
+      sandbox-base-images:
+        patterns: ["*"]
+    ignore:
+      # The Python minor is a deliberate move, made together with requires-python and the CI
+      # matrix; Dependabot proposes digest refreshes and patch tags only.
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions-minor-and-patch:
+        update-types: ["minor", "patch"]

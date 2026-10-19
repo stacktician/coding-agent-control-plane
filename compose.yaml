@@ -4,10 +4,12 @@
 # host's Claude login); everything else runs here.
 name: coding-agent-control-plane
 
+# Every image is pinned by tag and digest; Dependabot refreshes both, and the Images workflow
+# scans each one on every change and weekly.
 services:
   temporal:
     container_name: temporal
-    image: temporalio/temporal:1.9.1
+    image: temporalio/temporal:1.9.1@sha256:ad4c82c97bd12b417d1ea942610dbcd511afb250c4d5ed26c694009533df447e
     command: ["server", "start-dev", "--ip", "0.0.0.0", "--db-filename", "/var/lib/temporal/temporal.db"]
     user: "0"  # the image runs as uid 1000, which cannot write to a fresh named volume
     ports:
@@ -18,7 +20,7 @@ services:
 
   jaeger:
     container_name: jaeger
-    image: jaegertracing/jaeger:2.21.0
+    image: jaegertracing/jaeger:2.21.0@sha256:3d0ac795ff98aa04d1be04311d2dac6c25b4bfc8322dc02e53bc5b170c5018c3
     ports:
       - "127.0.0.1:16686:16686"
       - "127.0.0.1:4317:4317"
@@ -26,7 +28,7 @@ services:
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.7.4
+    image: quay.io/keycloak/keycloak:26.7.4@sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -42,7 +44,7 @@ services:
 
   github-mcp:
     container_name: github-mcp
-    image: ghcr.io/github/github-mcp-server:v1.12.2
+    image: ghcr.io/github/github-mcp-server:v1.12.2@sha256:508a0857ec762b1ab1cece29193345b501fab1dd9d1228a7b617062954cecac6
     command: ["http", "--port", "8082"]
     environment:
       GITHUB_TOOLSETS: repos,issues,pull_requests
@@ -67,7 +69,8 @@ services:
 
   agentgateway:
     container_name: agentgateway
-    image: cr.agentgateway.dev/agentgateway:v1.5.0
+    # GHCR is the registry cr.agentgateway.dev fronts; Dependabot can read tags here.
+    image: ghcr.io/agentgateway/agentgateway:v1.5.0@sha256:bf2f339ef326d32def2aaeb44b1b4549801293c19b89e764a4228667d97d9896
     command: ["-f", "/config.yaml"]
     volumes:
       - ./deploy/agentgateway/gateway.yaml:/config.yaml:ro

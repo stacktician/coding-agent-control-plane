@@ -1,17 +1,23 @@
-name: ci
+name: CI
 
-# The same gate as CLAUDE.md's "before you call a change done", on every push and PR.
-# The Agent SDK is faked in tests, so this spends no model usage.
+# The same gate as CLAUDE.md's "before you call a change done", on every push to every branch
+# and on every pull request. The Agent SDK is faked in tests, so this spends no model usage.
+# A newer push to the same branch cancels the run it supersedes.
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   gate:
+    name: Gate
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

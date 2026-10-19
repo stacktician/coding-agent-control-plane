@@ -1,0 +1,6 @@
+# Vulnerabilities accepted for this repository. Unfixed findings are already ignored by the
+# workflow (ignore-unfixed), so an entry here is a fixed vulnerability we have chosen not to
+# act on yet. One per entry: a comment line with the reason, then the id with an expiry.
+# Example:
+#   # false positive: the vulnerable code path is not reachable from the sandbox server
+#   CVE-2026-00000 exp:2026-12-31

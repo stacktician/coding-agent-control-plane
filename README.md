@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/ci.yml/badge.svg)](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/ci.yml)
 [![Architecture](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/architecture.yml/badge.svg)](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/architecture.yml)
+[![Images](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/images.yml/badge.svg)](https://github.com/stacktician/coding-agent-control-plane/actions/workflows/images.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](pyproject.toml)
 [![Architecture: C4](https://img.shields.io/badge/architecture-C4%20model-08427b)](docs/architecture/README.md)
@@ -128,8 +129,9 @@ Then label an issue on the fork `agent-ok`. The worker refuses to start if
 Designed, reviewed and verified by a human; implemented with Claude Code working under the
 project conventions in [`CLAUDE.md`](CLAUDE.md). Every change passes the same gate locally
 and in CI: `ruff check`, `ruff format --check`, `mypy --strict` and `pytest`, with the Agent
-SDK faked in tests so the suite spends no model usage. Dependencies, container images and
-actions are pinned, and Dependabot proposes the updates.
+SDK faked in tests so the suite spends no model usage. Dependencies, container images (by
+digest) and actions are pinned; Dependabot proposes the updates; Trivy scans the sandbox image
+on every change and weekly, and the results land in code scanning.
 
 ## Contact
 

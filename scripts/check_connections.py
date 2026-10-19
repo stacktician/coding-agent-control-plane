@@ -161,6 +161,7 @@ async def checks(
         pat = settings.github_pat.get_secret_value()
         headers = {"Authorization": f"Bearer {pat}", "Accept": "application/vnd.github+json"}
         fork = settings.github_fork
+        issue_number = args.issue_number
         valid_fork = bool(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", fork))
         if not valid_fork:
             report.check(
@@ -221,27 +222,30 @@ async def checks(
                     if all(labels.get(k) == v for k, v in wanted.items())
                     else "one or more names/colors not confirmed",
                 )
-                for number, upstream in (
-                    ((1, 289), (2, 299), (3, 282), (4, 301)) if args.check_seed_issues else ()
-                ):
-                    response = await http.get(
-                        f"https://api.github.com/repos/{fork}/issues/{number}", headers=headers
-                    )
-                    obj = response.json() if response.status_code == 200 else {}
-                    good = (
-                        obj.get("number") == number
-                        and obj.get("state") == "open"
-                        and obj.get("labels") == []
-                        and "pull_request" not in obj
-                        and f"https://github.com/mahmoud/boltons/issues/{upstream}"
-                        in (obj.get("body") or "")
-                    )
+                response = await http.get(
+                    f"https://api.github.com/repos/{fork}/issues",
+                    headers=headers,
+                    params={"state": "open", "per_page": 100},
+                )
+                open_issues = [
+                    x
+                    for x in (response.json() if response.status_code == 200 else [])
+                    if "pull_request" not in x
+                ]
+                if issue_number is None and open_issues:
+                    issue_number = min(x["number"] for x in open_issues)
+                # The seeds are found by the upstream issue they reference, not by number: the
+                # demo setup script deletes and recreates them, and GitHub never reuses a number.
+                for upstream in (289, 299, 282, 301) if args.check_seed_issues else ():
+                    url = f"https://github.com/mahmoud/boltons/issues/{upstream}"
+                    found = [x for x in open_issues if url in (x.get("body") or "")]
+                    good = len(found) == 1 and found[0].get("labels") == []
                     report.check(
-                        f"Fork issue #{number}",
+                        f"Seed issue from upstream #{upstream}",
                         good,
-                        f"open, unlabeled, references upstream #{upstream}"
+                        f"fork issue #{found[0]['number']} open and unlabeled"
                         if good
-                        else "expected issue state/source/labels not confirmed",
+                        else "not exactly one open, unlabeled fork issue references it",
                     )
             except Exception as exc:
                 report.error("GitHub direct reads", exc)
@@ -274,7 +278,7 @@ async def checks(
             )
         except Exception as exc:
             report.error("Gateway rejects missing token", exc)
-        if token and valid_fork:
+        if token and valid_fork and issue_number:
             try:
                 transport = StreamableHttpTransport(
                     settings.gateway_mcp_url, headers={"Authorization": f"Bearer {token}"}
@@ -297,7 +301,7 @@ async def checks(
                             "method": "get",
                             "owner": owner,
                             "repo": repo,
-                            "issue_number": args.issue_number,
+                            "issue_number": issue_number,
                         },
                         timeout=25,
                         raise_on_error=False,
@@ -315,11 +319,11 @@ async def checks(
                                     payloads.append(json.loads(block.text))
                                 except (ValueError, TypeError):
                                     pass
-                        good = any(contains_issue(p, args.issue_number, fork) for p in payloads)
+                        good = any(contains_issue(p, issue_number, fork) for p in payloads)
                         report.check(
                             "Actual GitHub read THROUGH gateway",
                             good,
-                            f"{fork} issue #{args.issue_number} returned using Docker's credential"
+                            f"{fork} issue #{issue_number} returned using Docker's credential"
                             if good
                             else "issue not verified; raw response suppressed",
                         )
@@ -329,7 +333,7 @@ async def checks(
             report.check(
                 "Actual GitHub read THROUGH gateway",
                 False,
-                "blocked by Keycloak authentication or invalid GITHUB_FORK",
+                "blocked by Keycloak authentication, invalid GITHUB_FORK or no open issue to read",
             )
 
         try:
@@ -456,8 +460,7 @@ def main() -> int:
     parser.add_argument(
         "--issue-number",
         type=int,
-        default=1,
-        help="Existing issue to read through the gateway (default: 1)",
+        help="Existing issue to read through the gateway (default: the lowest open issue)",
     )
     parser.add_argument(
         "--check-seed-issues",
@@ -486,7 +489,7 @@ def main() -> int:
     for trace in (args.jaeger_trace_id, args.langfuse_trace_id):
         if trace and not re.fullmatch(r"[0-9a-fA-F]{32}", trace):
             parser.error("trace IDs must contain exactly 32 hexadecimal characters")
-    if args.issue_number <= 0:
+    if args.issue_number is not None and args.issue_number <= 0:
         parser.error("--issue-number must be positive")
     if args.lookback_hours <= 0:
         parser.error("--lookback-hours must be positive")

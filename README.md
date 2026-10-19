@@ -60,8 +60,10 @@ Every step, in order: [issue to pull request](docs/architecture/README.md#one-is
 ## Quickstart
 
 Prerequisites: Docker, [uv](https://docs.astral.sh/uv/), Claude Code signed in to a Claude
-subscription, a fork of the target repository with a fine-grained personal access token
-scoped to it, and a Langfuse project.
+subscription, a fine-grained personal access token for a fork of the target repository
+(`scripts/prepare_demo_repo.py` creates it and its seed issues; see
+[scripts/README.md](scripts/README.md#preparing-the-demo-repository)), and a
+Langfuse project.
 
 ```bash
 cp .env.example .env    # then fill in every empty value

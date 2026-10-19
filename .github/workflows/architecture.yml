@@ -6,7 +6,7 @@ name: Architecture
 on:
   workflow_dispatch:
   push:
-    branches: ["**"]
+    branches-ignore: ["dependabot/**"]  # Dependabot branches are tested through their PRs
   pull_request:
 
 permissions:

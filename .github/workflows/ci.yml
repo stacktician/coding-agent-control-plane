@@ -2,10 +2,11 @@ name: CI
 
 # The same gate as CLAUDE.md's "before you call a change done", on every push to every branch
 # and on every pull request. The Agent SDK is faked in tests, so this spends no model usage.
-# A newer push to the same branch cancels the run it supersedes.
+# A newer push to the same branch cancels the run it supersedes. Dependabot's branches are
+# tested through their pull requests only, so one commit does not get two competing runs.
 on:
   push:
-    branches: ["**"]
+    branches-ignore: ["dependabot/**"]
   pull_request:
 
 permissions:

@@ -44,7 +44,8 @@ Edit only `workspace.dsl`. The SVGs are generated; never edit them by hand.
 - **Render:** `scripts/render_architecture.sh` re-renders every view (needs Docker).
 - **On commit:** the pre-commit hook in `.githooks/` re-renders and stages the SVGs whenever
   `workspace.dsl` is staged. Enable it once per clone: `git config core.hooksPath .githooks`.
-- **In CI:** the `architecture` workflow re-renders and fails if the committed SVGs are stale.
+- **In CI:** the Architecture workflow (`.github/workflows/architecture.yml`) re-renders and
+  fails if the committed SVGs are stale; when no diagram input changed, the render is skipped.
 
 To explore the model interactively, run the Structurizr viewer and open
 http://localhost:8090 (port 8090, because Keycloak uses 8080):

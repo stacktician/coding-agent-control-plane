@@ -1,24 +1,54 @@
-name: architecture
+name: Architecture
 
-# Fails when the committed SVGs no longer match docs/architecture/workspace.dsl.
+# Fails when the committed SVGs no longer match docs/architecture/workspace.dsl. Runs on every
+# push and pull request so the check always reports; the render itself happens only when a
+# diagram input changed. Otherwise the render job is skipped, which a ruleset counts as passed.
 on:
   workflow_dispatch:
   push:
-    paths:
-      - "docs/architecture/**"
-      - "scripts/render_architecture.sh"
-      - ".github/workflows/architecture.yml"
+    branches: ["**"]
   pull_request:
-    paths:
-      - "docs/architecture/**"
-      - "scripts/render_architecture.sh"
-      - ".github/workflows/architecture.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  scope:
+    name: Scope
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      affected: ${{ steps.diff.outputs.affected }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Did a diagram input change?
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          # A pull request diffs against its base; a push diffs against the branch's previous tip.
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ -z "$BASE" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            echo "affected=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$BASE" HEAD | grep -qE '^(docs/architecture/|scripts/render_architecture\.sh$|\.github/workflows/architecture\.yml$)'; then
+            echo "affected=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "affected=false" >> "$GITHUB_OUTPUT"
+            echo "No diagram input changed; the render is not needed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   diagrams-current:
+    name: Diagrams current
+    needs: scope
+    if: needs.scope.outputs.affected == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:

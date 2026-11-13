@@ -9,7 +9,7 @@ name: coding-agent-control-plane
 services:
   temporal:
     container_name: temporal
-    image: temporalio/temporal:1.9.1@sha256:ad4c82c97bd12b417d1ea942610dbcd511afb250c4d5ed26c694009533df447e
+    image: temporalio/temporal:1.10.0@sha256:003508da05989e7cf0d583cfce521c4bb2732e733574e3040db8f1284783baa2
     command: ["server", "start-dev", "--ip", "0.0.0.0", "--db-filename", "/var/lib/temporal/temporal.db"]
     user: "0"  # the image runs as uid 1000, which cannot write to a fresh named volume
     ports:
@@ -20,7 +20,7 @@ services:
 
   jaeger:
     container_name: jaeger
-    image: jaegertracing/jaeger:2.21.0@sha256:3d0ac795ff98aa04d1be04311d2dac6c25b4bfc8322dc02e53bc5b170c5018c3
+    image: jaegertracing/jaeger:2.23.0@sha256:3823829974ccfc2485d2e48b165579091f32295022ae80ca49704e2f4834116e
     ports:
       - "127.0.0.1:16686:16686"
       - "127.0.0.1:4317:4317"
@@ -28,7 +28,7 @@ services:
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.7.4@sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c
+    image: quay.io/keycloak/keycloak:26.8.2-2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -70,7 +70,7 @@ services:
   agentgateway:
     container_name: agentgateway
     # GHCR is the registry cr.agentgateway.dev fronts; Dependabot can read tags here.
-    image: ghcr.io/agentgateway/agentgateway:v1.5.0@sha256:bf2f339ef326d32def2aaeb44b1b4549801293c19b89e764a4228667d97d9896
+    image: ghcr.io/agentgateway/agentgateway:v1.7.0@sha256:60216aafb03d37f94e952ff3d51d2f630a65b10ecaebdc0a864882f92610c45b
     command: ["-f", "/config.yaml"]
     volumes:
       - ./deploy/agentgateway/gateway.yaml:/config.yaml:ro
